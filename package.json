@@ -2,9 +2,21 @@
   "name": "maglia",
   "version": "0.0.1",
   "description": "Front-end JavaScript MVC framework",
-  "main": "index.js",
+  "main": "./dist/magliajs.umd.js",
+  "module": "./dist/magliajs.mjs",
+  "files": [
+    "./dist/*",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/magliajs.mjs",
+      "require": "./dist/magliajs.umd.js"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "vite build"
   },
   "repository": {
     "type": "git",
@@ -19,5 +31,10 @@
   "bugs": {
     "url": "https://github.com/harrymaynard/magliajs/issues"
   },
-  "homepage": "https://github.com/harrymaynard/magliajs#readme"
+  "homepage": "https://github.com/harrymaynard/magliajs#readme",
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "vite": "^4.3.3",
+    "vite-plugin-dts": "^2.3.0"
+  }
 }
