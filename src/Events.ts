@@ -129,7 +129,7 @@ export class Events {
 
 // A listening class that tracks and cleans up memory bindings
 // when all callbacks have been offed.
-export class Listening {
+class Listening {
   public id
   public listener
   public obj
