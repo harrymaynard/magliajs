@@ -6,6 +6,9 @@ let _listening: any
 
 export class Events {
   private _events: any
+  private _listenId: any
+  private _listeners: any
+  private _listeningTo: any
 
   public on(name: string, callback: Function, context: any) {
     this._events = eventsApi(onApi, this._events || {}, name, callback, {
@@ -102,7 +105,7 @@ export class Events {
   }
 
   // Inversion-of-control versions of `once`.
-  public listenToOnce(obj, name, callback) {
+  public listenToOnce(obj: any, name: string, callback: Function) {
     // Map the event into a `{event: once}` object.
     var events = eventsApi(onceMap, {}, name, callback, this.stopListening.bind(this, obj))
     return this.listenTo(obj, events)
@@ -134,7 +137,7 @@ export class Listening {
   public count
   private _events: any
 
-  constructor(listener, obj) {
+  constructor(listener: any, obj: any) {
     this.id = listener._listenId
     this.listener = listener
     this.obj = obj
@@ -171,7 +174,7 @@ export class Listening {
 
 
 
-function eventsApi(iteratee: Function, events, name, callback: Function, opts) {
+function eventsApi(iteratee: Function, events: any, name: any, callback: Function, opts: any) {
   let i = 0
   let names
 
@@ -200,7 +203,7 @@ function eventsApi(iteratee: Function, events, name, callback: Function, opts) {
 }
 
 // The reducing API that adds a callback to the `events` object.
-function onApi(events, name, callback: Function, options) {
+function onApi(events: any, name: string, callback: Function, options: any) {
   if (callback) {
     const handlers = events[name] || (events[name] = [])
     const context = options.context
@@ -220,8 +223,8 @@ function onApi(events, name, callback: Function, options) {
 }
 
 // The reducing API that removes a callback from the `events` object.
-function offApi(events, name, callback: Function, options) {
-  if (!events) return;
+function offApi(events: any, name: string, callback: Function, options: any) {
+  if (!events) return
 
   let context = options.context
   let listeners = options.listeners
