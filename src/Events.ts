@@ -1,5 +1,5 @@
 import { default as onceHelper } from './helpers/once.ts'
-import { default as uniqueId } from './helpers/uniqueId.ts'
+import uniqueId from './helpers/uniqueId.ts'
 
 const eventSplitter = /\s+/
 let _listening: any
