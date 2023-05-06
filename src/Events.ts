@@ -33,9 +33,9 @@ export class Events {
   // for easier unbinding later.
   public listenTo(obj: any, name: string, callback?: Function) {
     if (!obj) return this;
-    var id = obj._listenId || (obj._listenId = uniqueId('l'))
-    var listeningTo = this._listeningTo || (this._listeningTo = {})
-    var listening = _listening = listeningTo[id];
+    let id = obj._listenId || (obj._listenId = uniqueId('l'))
+    let listeningTo = this._listeningTo || (this._listeningTo = {})
+    let listening = _listening = listeningTo[id];
 
     // This object is not listening to any other events on `obj` yet.
     // Setup the necessary references to track the listening callbacks.
@@ -45,7 +45,7 @@ export class Events {
     }
 
     // Bind callbacks on obj.
-    var error = tryCatchOn(obj, name, callback, this)
+    let error = tryCatchOn(obj, name, callback, this)
     _listening = void 0
 
     if (error) throw error
@@ -107,7 +107,7 @@ export class Events {
   // Inversion-of-control versions of `once`.
   public listenToOnce(obj: any, name: string, callback: Function) {
     // Map the event into a `{event: once}` object.
-    var events = eventsApi(onceMap, {}, name, callback, this.stopListening.bind(this, obj))
+    let events = eventsApi(onceMap, {}, name, callback, this.stopListening.bind(this, obj))
     return this.listenTo(obj, events)
   }
 
@@ -118,9 +118,9 @@ export class Events {
   public trigger(name: string, ...paramArgs: any) {
     if (!this._events) return this
 
-    var length = Math.max(0, arguments.length - 1)
-    var args = Array(length)
-    for (var i = 0; i < length; i++) args[i] = arguments[i + 1]
+    let length = Math.max(0, arguments.length - 1)
+    let args = Array(length)
+    for (let i = 0; i < length; i++) args[i] = arguments[i + 1]
 
     eventsApi(triggerApi, this._events, name, void 0, args)
     return this
@@ -151,7 +151,7 @@ class Listening {
   // Otherwise, falls back to manual tracking to support events
   // library interop.
   public off(name: string, callback: Function) {
-    var cleanup;
+    let cleanup;
     if (this.interop) {
       this._events = eventsApi(offApi, this._events, name, callback, {
         context: void 0,
@@ -249,7 +249,7 @@ function offApi(events: any, name: string, callback: Function, options: any) {
 
     // Find any remaining events.
     let remaining = []
-    for (var j = 0; j < handlers.length; j++) {
+    for (let j = 0; j < handlers.length; j++) {
       let handler = handlers[j]
       if (
         callback && callback !== handler.callback &&
@@ -258,7 +258,7 @@ function offApi(events: any, name: string, callback: Function, options: any) {
       ) {
         remaining.push(handler)
       } else {
-        var listening = handler.listening
+        let listening = handler.listening
         if (listening) listening.off(name, callback)
       }
     }
@@ -289,8 +289,8 @@ function onceMap(map: any, name: string, callback: Function, offer: Function) {
 // Handles triggering the appropriate event callbacks.
 function triggerApi(objEvents: any, name: string, callback: Function, args: any) {
   if (objEvents) {
-    var events = objEvents[name]
-    var allEvents = objEvents.all
+    let events = objEvents[name]
+    let allEvents = objEvents.all
     if (events && allEvents) allEvents = allEvents.slice()
     if (events) triggerEvents(events, args)
     if (allEvents) triggerEvents(allEvents, [name].concat(args))
@@ -320,7 +320,7 @@ function triggerEvents(events: any, args: any) {
 
 // An try-catch guarded #on function, to prevent poisoning the global
 // `_listening` variable.
-var tryCatchOn = function(obj: any, name: string, callback: Function, context: any) {
+const tryCatchOn = function(obj: any, name: string, callback: Function, context: any) {
   try {
     obj.on(name, callback, context)
   } catch (e) {

@@ -28,7 +28,7 @@ export class Model extends Events {
 
   // Return a copy of the model's `attributes` object.
   public toJSON() {
-    // TODO: Return clone of attributes object.
+    return clone(this.attributes)
   }
 
   public get(key: string) {
@@ -53,10 +53,10 @@ export class Model extends Events {
     if (!this._validate(attrs, options)) return false
 
     // Extract attributes and options.
-    var unset      = options.unset
-    var silent     = options.silent
-    var changes    = []
-    var changing   = this._changing
+    let unset      = options.unset
+    let silent     = options.silent
+    let changes    = []
+    let changing   = this._changing
     this._changing = true
 
     if (!changing) {
@@ -64,12 +64,12 @@ export class Model extends Events {
       this.changed = {}
     }
 
-    var current = this.attributes
-    var changed = this.changed
-    var prev    = this._previousAttributes
+    let current = this.attributes
+    let changed = this.changed
+    let prev    = this._previousAttributes
 
     // For each `set` attribute, update or delete the current value.
-    for (var attr in attrs) {
+    for (const attr in attrs) {
       value = attrs[attr]
       if (!isEqualWith(current[attr], value)) changes.push(attr)
       if (!isEqualWith(prev[attr], value)) {
@@ -82,7 +82,7 @@ export class Model extends Events {
 
     // Update the `id`.
     if (this.idAttribute in attrs) {
-      var prevId = this.id
+      const prevId = this.id
       this.id = this.get(this.idAttribute)
       this.trigger('changeId', this, prevId, options)
     }
@@ -90,7 +90,7 @@ export class Model extends Events {
     // Trigger all relevant attribute changes.
     if (!silent) {
       if (changes.length) this._pending = options
-      for (var i = 0; i < changes.length; i++) {
+      for (let i = 0; i < changes.length; i++) {
         this.trigger('change:' + changes[i], this, current[changes[i]], options)
       }
     }
@@ -123,7 +123,7 @@ export class Model extends Events {
   private _validate(attrs: any, options: any): boolean {
     if (!options.validate || !this.validate) return true
     attrs = extend({}, this.attributes, attrs)
-    var error = this.validationError = this.validate(attrs, options) || null
+    const error = this.validationError = this.validate(attrs, options) || null
     if (!error) return true
     this.trigger('invalid', this, error, extend(options, {validationError: error}))
     return false
