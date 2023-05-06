@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "target": "es5",
     "module": "es2020",
-    "moduleResolution": "bundler",
+    "moduleResolution": "nodenext",
     "noImplicitAny": true,
     "preserveConstEnums": true,
     "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "sourceMap": true,
     "baseUrl": ".",

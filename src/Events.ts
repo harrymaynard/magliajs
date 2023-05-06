@@ -1,5 +1,5 @@
-import { default as onceHelper } from './helpers/once.ts'
-import uniqueId from './helpers/uniqueId.ts'
+import { default as onceHelper } from 'lodash/once'
+import uniqueId from 'lodash/uniqueId'
 
 const eventSplitter = /\s+/
 let _listening: any
@@ -115,7 +115,7 @@ export class Events {
   // passed the same arguments as `trigger` is, apart from the event name
   // (unless you're listening on `"all"`, which will cause your callback to
   // receive the true name of the event as the first argument).
-  public trigger(name: string) {
+  public trigger(name: string, ...paramArgs: any) {
     if (!this._events) return this
 
     var length = Math.max(0, arguments.length - 1)
@@ -282,7 +282,6 @@ function onceMap(map: any, name: string, callback: Function, offer: Function) {
       offer(name, once)
       callback.apply(this, arguments)
     })
-    once._callback = callback
   }
   return map
 }

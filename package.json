@@ -32,7 +32,11 @@
     "url": "https://github.com/harrymaynard/magliajs/issues"
   },
   "homepage": "https://github.com/harrymaynard/magliajs#readme",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
   "devDependencies": {
+    "@types/lodash": "^4.14.194",
     "typescript": "^5.0.4",
     "vite": "^4.3.3",
     "vite-plugin-dts": "^2.3.0"
