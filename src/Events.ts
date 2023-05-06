@@ -72,7 +72,7 @@ export class Events {
 
   // Tell this object to stop listening to either specific events ... or
   // to every object it's currently listening to.
-  public stopListening(obj: any, name: string, callback: Function) {
+  public stopListening(obj?: any, name?: string, callback?: Function) {
     let listeningTo = this._listeningTo
 
     if (!listeningTo) return this

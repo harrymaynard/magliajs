@@ -1,6 +1,12 @@
 import isEqualWith from 'lodash/isEqualWith'
 import clone from 'lodash/clone'
 import extend from 'lodash/extend'
+import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
+import uniqueId from 'lodash/uniqueId'
+import result from 'lodash/result'
+import has from 'lodash/has'
+import { default as defaultsHelper } from 'lodash/defaults'
 import { Events } from './Events'
 import IModelAttributes from './interfaces/IModelAttributes'
 
@@ -9,13 +15,26 @@ export class Model extends Events {
   public idAttribute: string = 'id'
   public changed: any = {}
   public validationError: any = null
+  public cid: any
+  public cidPrefix: string = 'c'
+  public collection: any = null
   private _changing: boolean = false
   private _pending: boolean = false
   private _previousAttributes: any = {}
 
-  constructor(attributes: IModelAttributes) {
+  constructor(attributes: IModelAttributes, options: any) {
     super()
-    this.attributes = attributes
+    let attrs: any = attributes || {}
+    options || (options = {})
+    this.preinitialize.apply(this, arguments)
+    this.cid = uniqueId(this.cidPrefix)
+    this.attributes = {}
+    if (options.collection) this.collection = options.collection
+    const defaults = result(this, 'defaults')
+    attrs = defaultsHelper(extend({}, defaults, attrs), defaults)
+    this.set(attrs, options)
+    this.changed = {}
+    this.initialize.apply(this, arguments)
   }
 
   get id() {
@@ -25,6 +44,10 @@ export class Model extends Events {
   set id(value: any) {
     this.set('id', value)
   }
+
+  public preinitialize() {}
+
+  public initialize() {}
 
   // Return a copy of the model's `attributes` object.
   public toJSON() {
@@ -114,6 +137,70 @@ export class Model extends Events {
   // or undefined.
   public has(key: string): boolean {
     return this.get(key) != null
+  }
+
+  // Remove an attribute from the model, firing `"change"`. `unset` is a noop
+  // if the attribute doesn't exist.
+  public unset(attr: any, options: any) {
+    return this.set(attr, void 0, extend({}, options, {unset: true}))
+  }
+
+  // Clear all attributes on the model, firing `"change"`.
+  public clear(options: any) {
+    const attrs: any = {}
+    for (const key in this.attributes) attrs[key] = void 0
+    return this.set(attrs, extend({}, options, {unset: true}))
+  }
+
+  // Determine if the model has changed since the last `"change"` event.
+  // If you specify an attribute name, determine if that attribute has changed.
+  public hasChanged(attr?: any) {
+    if (attr == null) return !isEmpty(this.changed)
+    return has(this.changed, attr)
+  }
+
+  // Return an object containing all the attributes that have changed, or
+  // false if there are no changed attributes. Useful for determining what
+  // parts of a view need to be updated and/or what attributes need to be
+  // persisted to the server. Unset attributes will be set to undefined.
+  // You can also pass an attributes object to diff against the model,
+  // determining if there *would be* a change.
+  public changedAttributes(diff: any) {
+    if (!diff) return this.hasChanged() ? clone(this.changed) : false
+    const old = this._changing ? this._previousAttributes : this.attributes
+    const changed: any = {}
+    let hasChanged: boolean = false
+    for (const attr in diff) {
+      const val = diff[attr]
+      if (isEqual(old[attr], val)) continue
+      changed[attr] = val
+      hasChanged = true
+    }
+    return hasChanged ? changed : false
+  }
+
+  // Get the previous value of an attribute, recorded at the time the last
+  // `"change"` event was fired.
+  public previous(attr?: string) {
+    if (attr == null || !this._previousAttributes) return null
+    return this._previousAttributes[attr]
+  }
+
+  // Get all of the attributes of the model at the time of the previous
+  // `"change"` event.
+  public previousAttributes() {
+    return clone(this._previousAttributes);
+  }
+
+  // Destroy this model on the server if it was already persisted.
+  // Optimistically removes the model from its collection, if it has one.
+  // If `wait: true` is passed, waits for the server to respond before removal.
+  public destroy(options: any) {
+    options = options ? clone(options) : {}
+    const model = this
+    
+    model.stopListening()
+    model.trigger('destroy', model, model.collection, options)
   }
 
   public validate(attr: any, options: any): boolean {
