@@ -192,6 +192,10 @@ export class Model extends Events {
     return clone(this._previousAttributes);
   }
 
+  clone() {
+    return new this.constructor(this.attributes);
+  }
+
   // Destroy this model on the server if it was already persisted.
   // Optimistically removes the model from its collection, if it has one.
   // If `wait: true` is passed, waits for the server to respond before removal.

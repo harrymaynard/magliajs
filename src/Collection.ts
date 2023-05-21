@@ -14,6 +14,16 @@ export class Collection<T extends Model> extends Events {
     private _byId: any = {}
     private comparator: any
 
+    constructor(models: any, options: any) {
+      super()
+      options || (options = {});
+      this.preinitialize.apply(this, arguments);
+      if (options.model) this.model = options.model;
+      if (options.comparator !== void 0) this.comparator = options.comparator;
+      this._reset();
+      this.initialize.apply(this, arguments);
+      if (models) this.reset(models, extend({silent: true}, options));
+    }
 
     // preinitialize is an empty function by default. You can override it with a function
     // or object.  preinitialize will run before any instantiation logic is run in the Collection.
@@ -25,8 +35,8 @@ export class Collection<T extends Model> extends Events {
 
     // The JSON representation of a Collection is an array of the
     // models' attributes.
-    public toJSON(options: any) {
-      return this.map((model) => model.toJSON(options))
+    public toJSON() {
+      return this.map((model: T) => model.toJSON())
     }
 
     // Add a model, or list of models to the set. `models` may be Backbone
