@@ -12,6 +12,7 @@ export class Collection<T extends Model> extends Events {
     public length: number = 0
 
     private _byId: any = {}
+    private comparator: any
 
 
     // preinitialize is an empty function by default. You can override it with a function
@@ -31,8 +32,8 @@ export class Collection<T extends Model> extends Events {
     // Add a model, or list of models to the set. `models` may be Backbone
     // Models or raw JavaScript objects to be converted to Models, or any
     // combination of the two.
-    public add(models: any, options) {
-      return this.set(models, extend({merge: false}, options, addOptions))
+    public add(models: any, options: any) {
+      return this.set(models, extend({ merge: false }, options, addOptions))
     }
 
     // Remove a model, or a list of models from the set.
@@ -84,7 +85,7 @@ export class Collection<T extends Model> extends Events {
 
       let sort = false
       let sortable = this.comparator && at == null && options.sort !== false
-      let sortAttr = _.isString(this.comparator) ? this.comparator : null
+      let sortAttr = typeof this.comparator === 'string' ? this.comparator : null
 
       // Turn bare objects into model references, and prevent invalid models
       // from being added.
@@ -134,9 +135,9 @@ export class Collection<T extends Model> extends Events {
       let orderChanged = false
       let replace = !sortable && add && remove
       if (set.length && replace) {
-        orderChanged = this.length !== set.length || _.some(this.models, function(m, index) {
+        orderChanged = this.length !== set.length || this.models.some(function(m, index) {
           return m !== set[index]
-        });
+        })
         this.models.length = 0
         splice(this.models, set, 0)
         this.length = this.models.length
@@ -175,7 +176,7 @@ export class Collection<T extends Model> extends Events {
     // you can reset the entire set with a new list of models, without firing
     // any granular `add` or `remove` events. Fires `reset` when finished.
     // Useful for bulk operations and optimizations.
-    public reset(models, options) {
+    public reset(models: any, options: any) {
       options = options ? clone(options) : {}
       for (let i = 0; i < this.models.length; i++) {
         this._removeReference(this.models[i], options)
@@ -188,23 +189,23 @@ export class Collection<T extends Model> extends Events {
     }
 
     // Add a model to the end of the collection.
-    public push(model, options) {
+    public push(model: any, options: any) {
       return this.add(model, extend({at: this.length}, options))
     }
 
     // Remove a model from the end of the collection.
-    public pop(options) {
+    public pop(options: any) {
       let model = this.at(this.length - 1)
       return this.remove(model, options)
     }
 
     // Add a model to the beginning of the collection.
-    public unshift(model, options) {
+    public unshift(model: any, options: any) {
       return this.add(model, extend({at: 0}, options))
     }
 
     // Remove a model from the beginning of the collection.
-    public shift(options) {
+    public shift(options: any) {
       let model = this.at(0)
       return this.remove(model, options)
     }
@@ -229,36 +230,42 @@ export class Collection<T extends Model> extends Events {
     }
 
     // Get the model at the given index.
-    public at(index) {
+    public at(index: number) {
       if (index < 0) index += this.length
       return this.models[index]
     }
 
     // Return models with matching attributes. Useful for simple cases of
     // `filter`.
-    public where(attrs, first) {
+    public where(attrs: any, first: boolean) {
       return this[first ? 'find' : 'filter'](attrs)
     }
 
     // Return the first model with matching attributes. Useful for simple cases
     // of `find`.
-    public findWhere(attrs) {
+    public findWhere(attrs: any) {
       return this.where(attrs, true)
+    }
+
+    // **parse** converts a response into the hash of attributes to be `set` on
+    // the model. The default implementation is just to pass the response along.
+    public parse(resp: any, options: any) {
+      return resp
     }
 
     // Force the collection to re-sort itself. You don't need to call this under
     // normal circumstances, as the set will maintain sort order as each item
     // is added.
-    public sort(options) {
+    public sort(options: any) {
       let comparator = this.comparator
       if (!comparator) throw new Error('Cannot sort a set without a comparator')
       options || (options = {})
 
       let length = comparator.length
-      if (_.isFunction(comparator)) comparator = comparator.bind(this)
+      if (typeof comparator === 'function') comparator = comparator.bind(this)
 
       // Run sort based on type of `comparator`.
-      if (length === 1 || _.isString(comparator)) {
+      if (length === 1 || typeof comparator === 'string') {
         this.models = this.sortBy(comparator)
       } else {
         this.models.sort(comparator)
@@ -268,14 +275,8 @@ export class Collection<T extends Model> extends Events {
     }
 
     // Pluck an attribute from each model in the collection.
-    public pluck(attr) {
+    public pluck(attr: any) {
       return this.map(attr + '')
-    }
-
-    // **parse** converts a response into a list of models to be added to the
-    // collection. The default implementation is just to pass it through.
-    public parse(resp, options) {
-      return resp
     }
 
     // Create a new collection with an identical list of models as this one.
@@ -287,7 +288,7 @@ export class Collection<T extends Model> extends Events {
     }
 
     // Define how to uniquely identify models in the collection.
-    public modelId(attrs, idAttribute) {
+    public modelId(attrs: any, idAttribute: any) {
       return attrs[idAttribute || this.model.prototype.idAttribute || 'id']
     }
 
@@ -306,6 +307,10 @@ export class Collection<T extends Model> extends Events {
       return new CollectionIterator(this, ITERATOR_KEYSVALUES)
     }
 
+    [Symbol.iterator](): Function {
+      return this.values
+    }
+
     // Private method to reset all internal state. Called when the collection
     // is first initialized or reset.
     private _reset() {
@@ -316,7 +321,7 @@ export class Collection<T extends Model> extends Events {
 
     // Prepare a hash of attributes (or other model) to be added to this
     // collection.
-    private _prepareModel(attrs, options) {
+    private _prepareModel(attrs: any, options: any) {
       if (this._isModel(attrs)) {
         if (!attrs.collection) attrs.collection = this
         return attrs
@@ -338,7 +343,7 @@ export class Collection<T extends Model> extends Events {
     }
 
     // Internal method called by both remove and set.
-    private _removeModels(models, options) {
+    private _removeModels(models: any, options: any) {
       let removed = []
       for (let i = 0; i < models.length; i++) {
         let model = this.get(models[i])
@@ -372,7 +377,7 @@ export class Collection<T extends Model> extends Events {
     }
 
     // Internal method to create a model's ties to a collection.
-   private _addReference(model, options) {
+   private _addReference(model: any, options: any) {
       this._byId[model.cid] = model
       let id = this.modelId(model.attributes, model.idAttribute)
       if (id != null) this._byId[id] = model
@@ -380,7 +385,7 @@ export class Collection<T extends Model> extends Events {
     }
 
     // Internal method to sever a model's ties to a collection.
-    private _removeReference(model, options) {
+    private _removeReference(model: any, options: any) {
       delete this._byId[model.cid]
       let id = this.modelId(model.attributes, model.idAttribute)
       if (id != null) delete this._byId[id]
@@ -392,7 +397,7 @@ export class Collection<T extends Model> extends Events {
     // Sets need to update their indexes when models change ids. All other
     // events simply proxy through. "add" and "remove" events that originate
     // in other collections are ignored.
-    private _onModelEvent(event, model, collection, options) {
+    private _onModelEvent(event: any, model: any, collection: any, options: any) {
       if (model) {
         if ((event === 'add' || event === 'remove') && collection !== this) return
         if (event === 'destroy') this.remove(model, options)
@@ -411,7 +416,7 @@ export class Collection<T extends Model> extends Events {
 let slice = Array.prototype.slice
 
 // Splices `insert` into `array` at index `at`.
-var splice = function(array: Array<any>, insert: Array<any>, at: number) {
+const splice = function(array: Array<any>, insert: Array<any>, at: number) {
   at = Math.min(Math.max(at, 0), array.length)
   const tail = Array(array.length - at)
   const length = insert.length
@@ -432,13 +437,6 @@ const addOptions = {
   remove: false
 }
 
-// Defining an @@iterator method implements JavaScript's Iterable protocol.
-// In modern ES2015 browsers, this value is found at Symbol.iterator.
-/* global Symbol */
-const $$iterator = typeof Symbol === 'function' && Symbol.iterator
-if ($$iterator) {
-  Collection.prototype[$$iterator] = Collection.prototype.values
-}
 
 // CollectionIterator
 // ------------------
@@ -447,10 +445,57 @@ if ($$iterator) {
 // use of `for of` loops in modern browsers and interoperation between
 // Backbone.Collection and other JavaScript functions and third-party libraries
 // which can operate on Iterables.
-const CollectionIterator = function(collection, kind) {
-  this._collection = collection
-  this._kind = kind
-  this._index = 0
+class CollectionIterator {
+  private _collection: any
+  private _kind: any
+  private _index: any
+
+  constructor(collection: any, kind: any) {
+    this._collection = collection
+    this._kind = kind
+    this._index = 0
+  }
+
+  public next() {
+    if (this._collection) {
+  
+      // Only continue iterating if the iterated collection is long enough.
+      if (this._index < this._collection.length) {
+        let model = this._collection.at(this._index)
+        this._index++
+  
+        // Construct a value depending on what kind of values should be iterated.
+        let value
+        if (this._kind === ITERATOR_VALUES) {
+          value = model
+        } else {
+          const id = this._collection.modelId(model.attributes, model.idAttribute)
+          if (this._kind === ITERATOR_KEYS) {
+            value = id
+          } else { // ITERATOR_KEYSVALUES
+            value = [id, model]
+          }
+        }
+        return {
+          value: value,
+          done: false
+        }
+      }
+  
+      // Once exhausted, remove the reference to the collection so future
+      // calls to the next method always return done.
+      this._collection = void 0
+    }
+  
+    return {
+      value: void 0,
+      done: true
+    }
+  }
+
+  public [Symbol.iterator]() {
+    return this
+  }
 }
 
 // This "enum" defines the three possible kinds of values which can be emitted
@@ -459,47 +504,3 @@ const CollectionIterator = function(collection, kind) {
 const ITERATOR_VALUES = 1
 const ITERATOR_KEYS = 2
 const ITERATOR_KEYSVALUES = 3
-
-// All Iterators should themselves be Iterable.
-if ($$iterator) {
-  CollectionIterator.prototype[$$iterator] = function() {
-    return this
-  }
-}
-
-CollectionIterator.prototype.next = function() {
-  if (this._collection) {
-
-    // Only continue iterating if the iterated collection is long enough.
-    if (this._index < this._collection.length) {
-      var model = this._collection.at(this._index)
-      this._index++
-
-      // Construct a value depending on what kind of values should be iterated.
-      var value
-      if (this._kind === ITERATOR_VALUES) {
-        value = model
-      } else {
-        var id = this._collection.modelId(model.attributes, model.idAttribute)
-        if (this._kind === ITERATOR_KEYS) {
-          value = id
-        } else { // ITERATOR_KEYSVALUES
-          value = [id, model]
-        }
-      }
-      return {
-        value: value,
-        done: false
-      }
-    }
-
-    // Once exhausted, remove the reference to the collection so future
-    // calls to the next method always return done.
-    this._collection = void 0
-  }
-
-  return {
-    value: void 0,
-    done: true
-  }
-}
