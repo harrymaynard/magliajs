@@ -9,8 +9,9 @@ import has from 'lodash/has'
 import { default as defaultsHelper } from 'lodash/defaults'
 import { Events } from './Events'
 import IModelAttributes from './interfaces/IModelAttributes'
+import type IModel from './interfaces/IModel'
 
-export class Model extends Events {
+export class Model extends Events implements IModel {
   public attributes: IModelAttributes = {}
   public idAttribute: string = 'id'
   public changed: any = {}
@@ -193,7 +194,7 @@ export class Model extends Events {
   }
 
   clone() {
-    return new this.constructor(this.attributes);
+    return Object.assign(Object.create(Object.getPrototypeOf(this)), this)
   }
 
   // Destroy this model on the server if it was already persisted.

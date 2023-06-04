@@ -2,6 +2,7 @@ import clone from 'lodash/clone'
 import extend from 'lodash/extend'
 import { Events } from './Events'
 import { Model } from './Model'
+import type IModel from './interfaces/IModel'
 
 export class Collection<T extends Model> extends Events {
     // The default model for a collection is just a **Backbone.Model**.
@@ -16,13 +17,13 @@ export class Collection<T extends Model> extends Events {
 
     constructor(models: any, options: any) {
       super()
-      options || (options = {});
-      this.preinitialize.apply(this, arguments);
-      if (options.model) this.model = options.model;
-      if (options.comparator !== void 0) this.comparator = options.comparator;
-      this._reset();
-      this.initialize.apply(this, arguments);
-      if (models) this.reset(models, extend({silent: true}, options));
+      options || (options = {})
+      this.preinitialize.apply(this, arguments)
+      if (options.model) this.model = options.model
+      if (options.comparator !== void 0) this.comparator = options.comparator
+      this._reset()
+      this.initialize.apply(this, arguments)
+      if (models) this.reset(models, extend({silent: true}, options))
     }
 
     // preinitialize is an empty function by default. You can override it with a function
@@ -299,7 +300,7 @@ export class Collection<T extends Model> extends Events {
 
     // Define how to uniquely identify models in the collection.
     public modelId(attrs: any, idAttribute: any) {
-      return attrs[idAttribute || this.model.prototype.idAttribute || 'id']
+      return attrs[idAttribute || 'id']
     }
 
     // Get an iterator of all models in this collection.
