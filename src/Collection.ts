@@ -2,7 +2,6 @@ import clone from 'lodash/clone'
 import extend from 'lodash/extend'
 import { Events } from './Events'
 import { Model } from './Model'
-import type IModel from './interfaces/IModel'
 
 export class Collection<T extends Model> extends Events {
     // The default model for a collection is just a **Backbone.Model**.
@@ -300,7 +299,7 @@ export class Collection<T extends Model> extends Events {
 
     // Define how to uniquely identify models in the collection.
     public modelId(attrs: any, idAttribute: any) {
-      return attrs[idAttribute || 'id']
+      return attrs[idAttribute || this.model.idAttribute || 'id']
     }
 
     // Get an iterator of all models in this collection.
@@ -383,7 +382,7 @@ export class Collection<T extends Model> extends Events {
 
     // Method for checking whether an object should be considered a model for
     // the purposes of adding to the collection.
-    private _isModel(model) {
+    private _isModel(model: T) {
       return model instanceof Model
     }
 
