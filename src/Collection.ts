@@ -251,6 +251,14 @@ export class Collection<T extends Model> extends Events {
       return this[first ? 'find' : 'filter'](attrs)
     }
 
+    public find(attrs: any) {
+      // TODO: Implement
+    }
+
+    public filter(attrs: any) {
+      // TODO: Implement
+    }
+
     // Return the first model with matching attributes. Useful for simple cases
     // of `find`.
     public findWhere(attrs: any) {
@@ -293,7 +301,7 @@ export class Collection<T extends Model> extends Events {
     public clone() {
       return new this.constructor(this.models, {
         model: this.model,
-        comparator: this.comparator
+        comparator: this.comparator,
       })
     }
 
